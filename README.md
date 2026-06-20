@@ -259,6 +259,61 @@ url: https://swapnilbamble1438.github.io/EcommerceApplication/
 
   - Now try running Project and Check if the changes are done or not.
 
+## How to run app automatically using Docker?
+
+This project is fully containerized using Docker, allowing you to build and run the application without manually installing Java, Maven, or Tomcat by by **Aayusha Regmi**.
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Running the Application
+
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   cd <repository-folder>
+   ```
+
+2. Build and start the application:
+
+   ```bash
+   docker compose up --build
+   ```
+
+3. Once the containers are running, open your browser and visit:
+
+   ```
+   http://localhost:8080/
+   ```
+
+### Stopping the Application
+
+To stop the running containers:
+
+```bash
+docker compose down
+```
+
+Alternatively, if running in the foreground, press:
+
+```bash
+Ctrl + C
+```
+
+### What Docker Handles
+
+The Docker setup automatically:
+
+- Builds the application using Maven
+- Packages the application
+- Deploys it to Tomcat
+- Starts all required containers
+
+No manual installation of Java, Maven, or Tomcat is required. 
+
    
 
 
