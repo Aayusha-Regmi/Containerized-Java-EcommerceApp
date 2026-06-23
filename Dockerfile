@@ -1,50 +1,45 @@
-#Stage 1: Build using maven base image
+# Stage 1: Build stage using Maven and Java 17
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
-
-#Create Workdir in the conatiner to add all project files
+# Set working directory for build process
 WORKDIR /app
 
-#Copy the pom files and install them at once
-COPY /EcommerceApp/pom.xml .
+# Copy only pom.xml first to cache dependencies
+COPY EcommerceApp/pom.xml .
 
-#install all dependencies
+# Download all project dependencies without building
 RUN mvn dependency:go-offline -B
 
-#Copy other files
-COPY README.md .
+# Copy application source code
 COPY EcommerceApp/src ./src
+
+# Copy SQLite database file into build stage
 COPY EcommerceApp/mydatabase.db ./
+
+# Copy image assets (png files)
 COPY EcommerceApp/*.png ./
 
+# Build the application and create WAR file
 RUN mvn clean package -DskipTests
-#Package the application (skipping test for speed)
 
-RUN mvn clean package -DskipTests 
 
-#Stage 2: Run the application
-
-# We use Tomcat 9 because the source code uses the legacy 'javax.servlet' namespace.
+# Stage 2: Runtime stage using Tomcat
 FROM tomcat:9.0-jre17
 
-# Wipe out webapps completely so Tomcat has zero default application hooks
+# Remove default Tomcat applications
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Create an isolated directory outside of 'webapps' to avoid Tomcat auto-mapping conflicts
-RUN mkdir -p /usr/local/tomcat/custom-apps/
+# Copy WAR file from build stage into Tomcat deployment directory
+COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 
-# Copy the built binary into our custom path (retains developer's name structure)
-COPY --from=builder /app/target/*.war /usr/local/tomcat/custom-apps/EcommerceApp.war
+# Copy SQLite database file into Tomcat directory
+COPY --from=builder /app/mydatabase.db /usr/local/tomcat/mydatabase.db
 
-# Inject the deployment context file straight into the Catalina configuration engine
-COPY context.xml /usr/local/tomcat/conf/Catalina/localhost/ROOT.xml
-
-# Mount backend files and data
+# Set working directory to Tomcat home
 WORKDIR /usr/local/tomcat
-COPY --from=builder /app/*.png ./
-COPY --from=builder /app/README.md ./
-COPY --from=builder /app/mydatabase.db ./
 
+# Expose Tomcat port
 EXPOSE 8080
-CMD ["catalina.sh", "run"]
 
+# Start Tomcat server
+CMD ["catalina.sh", "run"]
