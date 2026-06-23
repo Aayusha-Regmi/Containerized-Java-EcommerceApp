@@ -286,8 +286,11 @@ This project is fully containerized using Docker, allowing you to build and run 
 3. Once the containers are running, open your browser and visit:
 
    ```
-   http://localhost:8080/
+   http://localhost/
+
    ```
+ 
+Here, Nginx reverse proxy handles the request and forwards it to the application container.
 
 ### Stopping the Application
 
@@ -302,6 +305,14 @@ Alternatively, if running in the foreground, press:
 ```bash
 Ctrl + C
 ```
+
+### What role NGINX plays in the project
+
+Nginx:
+- Acts as a reverse proxy in front of the application server
+- Receives all client requests and forwards them to the backend container
+- Hides internal container ports and improves overall security
+- Provides a single entry point for accessing the application (instead of exposing backend services directly)
 
 ### What Docker Handles
 
