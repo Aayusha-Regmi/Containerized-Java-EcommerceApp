@@ -13,12 +13,11 @@ RUN mvn dependency:go-offline -B
 
 #Copy other files
 COPY README.md .
+COPY EcommerceApp/src ./src
+COPY EcommerceApp/mydatabase.db ./
+COPY EcommerceApp/*.png ./
 
-COPY *.png ./
-
-COPY /EcommerceApp/mydatabase.db .
-COPY /EcommerceApp/src ./src
-
+RUN mvn clean package -DskipTests
 #Package the application (skipping test for speed)
 
 RUN mvn clean package -DskipTests 
